@@ -1,0 +1,15 @@
+{
+    "layers": {
+        "server": {
+            "env": {
+                "ssh_cidr": "0.0.0.0/0",
+                "ssh_key_name": "aws-cdk-ec2-docker-compose-key-pair",
+                "ebs_volume_size": 16
+            }
+        }
+    },
+    "tags": {
+        "org": "meetcarmen",
+        "app": "aws-cdk-ec2-docker-compose"
+    }
+}
