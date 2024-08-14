@@ -1,8 +1,8 @@
 #! /bin/bash -xe
 
 # Install Docker and Docker Compose
-yum update -y
-yum install -y docker git
+dnf update -y
+dnf install -y docker git python3.11 python3.11-pip -y
 service docker start
 usermod -a -G docker ec2-user
 chkconfig docker on
