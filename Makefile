@@ -68,20 +68,6 @@ server.reboot:
 	@instance_id=$$(aws ssm get-parameters --names "/${ORGANIZATION}/${APP_NAME}/InstanceId" | jq -r '.Parameters[0].Value') && \
 	response=$$(aws ec2 reboot-instances --instance-ids $$instance_id) && echo "$$response"
 
-# server.wait:
-# 	@public_ip=$$(aws ssm get-parameters \
-# 		--names "/${ORGANIZATION}/${APP_NAME}/PublicIp" | jq -r '.Parameters[0].Value') && \
-# 	timeout=360 && \
-# 	counter=0 && \
-# 	echo "Waiting for response from Ec2Server at $$public_ip..." && \
-# 	until [ $$(curl -s -o /dev/null -w "%{http_code}" $$public_ip/v1) -eq 200 ] ; do \
-# 		printf '.' ; \
-# 		sleep 1 ; \
-# 		counter=$$((counter + 1)) ; \
-# 		[ $$counter -eq $$timeout ] && break || true ; \
-# 	done && \
-# 	[ $$counter -eq $$timeout ] && $$(echo "Operation timed out!" && exit 1) || echo "Ready"
-
 server.get.public_ip:
 	@public_ip=$$(aws ssm get-parameters --names "/${ORGANIZATION}/${APP_NAME}/PublicIp" | jq -r '.Parameters[0].Value') && \
 	echo "$$public_ip"
@@ -114,9 +100,9 @@ define HELP_MESSAGE
 	Common usage:
 
 	...::: Deploy all CloudFormation based services :::...
-	$ make deploy
+	$ STAGE=<stage> make deploy
 
 	...::: Delete all CloudFormation based services and data :::...
-	$ make delete
+	$ STAGE=<stage> make delete
 
 endef
