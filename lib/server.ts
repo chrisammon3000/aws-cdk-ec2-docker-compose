@@ -13,7 +13,7 @@ export class Ec2Server extends Construct {
     constructor(scope: Construct, id: string) {
         super(scope, id);
 
-        // // uncomment to deploy a new VPC
+        // // uncomment to deploy a new VPC (comment out if using the default VPC)
         // this.vpc = new ec2.Vpc(this, 'VPC', {
         //     natGateways: 0,
         //     subnetConfiguration: [{
@@ -25,28 +25,24 @@ export class Ec2Server extends Construct {
         //     enableDnsSupport: true
         // });
 
-        // uncomment to use the existing default VPC
+        // uncomment to use the existing default VPC (comment out if deploying a new VPC)
         this.vpc = ec2.Vpc.fromLookup(this, 'VPC', {
             isDefault: true,
           });
 
-        // Ec2Server instance security group
         const securityGroup = new ec2.SecurityGroup(this, 'Ec2ServerSecurityGroup', {
             vpc: this.vpc,
             allowAllOutbound: true,
-            description: 'Allow SSH (TCP port 22) in',
         });
 
-        // Allow connections from your IP address (set in config.json)
-        securityGroup.addIngressRule(
-            ec2.Peer.ipv4(config.layers.server.env.ssh_cidr),
-            ec2.Port.tcp(80),
-            'Allow Ec2Server access');
-
-        securityGroup.addIngressRule(
-            ec2.Peer.ipv4(config.layers.server.env.ssh_cidr),
-            ec2.Port.tcp(22),
-            'Allow SSH');
+        // Set in config.json
+        for (const port of config.layers.server.security_group_inbound_config) {
+            securityGroup.addIngressRule(
+                ec2.Peer.ipv4(port.cidr),
+                ec2.Port.tcp(port.port),
+                port.description
+            );
+        }
 
         // IAM role for the instance allows SSM access
         const role = new iam.Role(this, 'Role', {

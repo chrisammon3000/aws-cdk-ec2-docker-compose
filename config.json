@@ -2,10 +2,21 @@
     "layers": {
         "server": {
             "env": {
-                "ssh_cidr": "0.0.0.0/0",
                 "ssh_key_name": "aws-cdk-ec2-docker-compose-key-pair",
                 "ebs_volume_size": 16
-            }
+            },
+            "security_group_inbound_config": [
+                {
+                    "port": 80,
+                    "description": "Allow HTTP access",
+                    "cidr": "0.0.0.0/0"
+                },
+                {
+                    "port": 22,
+                    "description": "Allow SSH access",
+                    "cidr": "0.0.0.0/0"
+                }
+            ]
         }
     },
     "tags": {
