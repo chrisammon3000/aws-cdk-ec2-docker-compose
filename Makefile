@@ -43,7 +43,8 @@ key-pair.create: ##=> Checks if the key pair already exists and creates it if it
 
 key-pair.delete:
 	@EC2_KEY_PAIR_NAME="$$(jq -r '.layers.server.env.ssh_key_name' ${ROOT_DIR}/config.json)" && \
-	aws ec2 delete-key-pair --key-name "$$EC2_KEY_PAIR_NAME" | jq -r && \
+	res=$$(aws ec2 delete-key-pair --key-name "$$EC2_KEY_PAIR_NAME") && \
+	echo "$$res" && \
 	mv ${ROOT_DIR}/$$EC2_KEY_PAIR_NAME.pem ${ROOT_DIR}/deprecated-key-$$(date -u +'%Y-%m-%d-%H-%M').pem
 
 server.status:

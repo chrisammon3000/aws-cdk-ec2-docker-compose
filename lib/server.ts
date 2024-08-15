@@ -86,31 +86,57 @@ export class Ec2Server extends Construct {
         });
         userData.grantRead(instance.role);
 
-        // create an elastic IP and associate it with the instance
+    // Declare `public_ip` at the function scope
+    let public_ip: string;  // assuming it's a string, adjust type accordingly
+
+    // Check if an existing Elastic IP allocation ID is provided
+    if (config.layers.server.elastic_ip.allocation_id) {
+        // Associate the EIP with the instance using the existing allocation ID
+        new ec2.CfnEIPAssociation(this, 'EIPAssociation', {
+            allocationId: config.layers.server.elastic_ip.allocation_id,
+            instanceId: instance.instanceId
+        });
+
+        // Assign the provided public IP to the variable
+        public_ip = config.layers.server.elastic_ip.public_ip;
+
+        console.log(`Using existing Elastic IP ${public_ip} from config`);
+
+    } else {
+        console.log('No Elastic IP provided in config, creating a new one...');
+
+        // Create a new Elastic IP
         const eip = new ec2.CfnEIP(this, 'EIP', {
             domain: 'vpc'
         });
 
-        // associate the EIP with the instance
+        // Associate the newly created EIP with the instance
         new ec2.CfnEIPAssociation(this, 'EIPAssociation', {
-            allocationId: eip.attrAllocationId,
+            allocationId: eip.ref,  // Correctly using `eip.ref` for new EIP association
             instanceId: instance.instanceId
         });
 
-        // SSM parameters
-        const instanceIdSsmParam = new ssm.StringParameter(this, 'InstanceId', {
-            parameterName: `/${config.tags.org}/${config.tags.app}/InstanceId`,
-            simpleName: false,
-            stringValue: instance.instanceId
-        });
+        // Use the new EIP's public IP
+        public_ip = eip.attrPublicIp;
 
-        const publicIpValue = eip.attrPublicIp
-        const publicIpSsmParam = new ssm.StringParameter(this, 'PublicIpParam', {
-            parameterName: `/${config.tags.org}/${config.tags.app}/PublicIp`,
-            simpleName: false,
-            stringValue: publicIpValue
-        });
-        this.publicIpSsmParamName = publicIpSsmParam.parameterName
-        new cdk.CfnOutput(this, 'PublicIpOutput', { value: publicIpValue });
+        console.log(`Created new Elastic IP ${public_ip}`);
+    }
+
+    // SSM parameters for instance ID
+    new ssm.StringParameter(this, 'InstanceId', {
+        parameterName: `/${config.tags.org}/${config.tags.app}/InstanceId`,
+        simpleName: false,
+        stringValue: instance.instanceId
+    });
+
+    // SSM parameter and CDK output for public IP
+    const publicIpSsmParam = new ssm.StringParameter(this, 'PublicIpParam', {
+        parameterName: `/${config.tags.org}/${config.tags.app}/PublicIp`,
+        simpleName: false,
+        stringValue: public_ip
+    });
+
+    this.publicIpSsmParamName = publicIpSsmParam.parameterName;
+    new cdk.CfnOutput(this, 'PublicIpOutput', { value: public_ip });
     }
 }
