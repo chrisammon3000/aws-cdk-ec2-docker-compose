@@ -40,7 +40,7 @@ export class Ec2Server extends Construct {
         // Allow connections from your IP address (set in config.json)
         securityGroup.addIngressRule(
             ec2.Peer.ipv4(config.layers.server.env.ssh_cidr),
-            ec2.Port.tcp(8080),
+            ec2.Port.tcp(80),
             'Allow Ec2Server access');
 
         securityGroup.addIngressRule(
