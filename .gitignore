@@ -75,7 +75,7 @@ fil*
 summary_*
 
 # Environment variables
-.env
+.env*
 
 # SAM CLI
 .aws-sam

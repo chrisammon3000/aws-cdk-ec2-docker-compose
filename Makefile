@@ -1,5 +1,5 @@
 # Adds .env variables to the environment, used for secrets
-include .env
+include .env.${STAGE}
 export
 
 # Deployment variables
