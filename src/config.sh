@@ -2,7 +2,7 @@
 
 # Install Docker and Docker Compose
 dnf update -y
-dnf install -y docker git python3.11 python3.11-pip -y
+dnf install -y docker git python3.11 python3.11-pip certbot -y
 service docker start
 usermod -a -G docker ec2-user
 chkconfig docker on

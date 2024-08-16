@@ -169,6 +169,16 @@ STAGE=<stage> make server.get.public_ip
 
 More information about how to SSH into an EC2 instance can be found in the [AWS documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html).
 
+## SSL Certificate Creation
+Run the command to create a self-signed SSL certificate using letsencrypt.
+```bash
+certbot certonly -n \
+  -d <fqdn> \           # Fully Qualified Domain Name (*.example.com)
+  --standalone \
+  -m <admin_email> \    # Admin email
+  --agree-tos \
+  --redirect
+```
 ## Troubleshooting
 * Check your AWS credentials in `~/.aws/credentials`
 * Check that the environment variables are available to the services that need them
